@@ -1,11 +1,17 @@
 import { useState, useEffect } from 'react';
 import { ShieldCheck, User, Bell } from 'lucide-react';
 
-// --- CONFIGURAÇÕES ---
-const TEMPO_PARA_BOTAO_APARECER = 60; 
-const LINK_DO_CHECKOUT = "https://seu-checkout.com"; 
+// --- CONFIGURAÇÕES DE ELITE ---
+
+// Pitch ocorre em 406s. Adicionei +4s de margem para o tempo de reação do usuário.
+const TEMPO_PARA_BOTAO_APARECER = 410; 
+
+const LINK_DO_CHECKOUT = "https://pay.hotmart.com/N103569021R?off=s3u1zz2j"; 
 const VAGAS_INICIAIS = 19;
-const LIMITE_MINIMO_VAGAS = 2; // Onde o contador vai travar
+const LIMITE_MINIMO_VAGAS = 2; 
+
+// Tempo para descer uma vaga (40 segundos em milissegundos)
+const VELOCIDADE_DA_ESCASSEZ = 40000; 
 
 const NOMES_LATAM_MASCULINOS = [
   "Santiago", "Mateo", "Sebastián", "Miguel", "Felipe", "Alejandro", "Daniel", 
@@ -14,7 +20,6 @@ const NOMES_LATAM_MASCULINOS = [
   "Ricardo", "Andrés", "Javier", "Manuel", "Roberto", "Francisco", "José"
 ];
 
-// Ações para quando AINDA TEM vagas (Venda confirmada)
 const ACOES_COMPRA = [
   "acaba de asegurar el precio promocional.",
   "garantizó su cupo con descuento.",
@@ -22,8 +27,6 @@ const ACOES_COMPRA = [
   "completó su inscripción con éxito."
 ];
 
-// Ações para quando as vagas ESTÃO NO FIM (Intenção/Travadas)
-// Isso justifica por que o contador parou de descer: o sistema está "esperando"
 const ACOES_CHECKOUT = [
   "está finalizando su compra en el checkout...",
   "está rellenando sus datos de pago...",
@@ -42,19 +45,22 @@ function App() {
   const [mostrarBotao, setMostrarBotao] = useState(false);
   const [notificacaoAtual, setNotificacaoAtual] = useState(null);
 
-  // 1. Escassez
+  // 1. Escassez Lenta e Constante (A cada 40s)
   useEffect(() => {
     const intervalo = setInterval(() => {
       setVagas((vagasAtuais) => {
-        if (vagasAtuais <= LIMITE_MINIMO_VAGAS) return LIMITE_MINIMO_VAGAS; 
-        if (Math.random() > 0.7) return vagasAtuais - 1;
-        return vagasAtuais;
+        // Se já chegou no limite, não desce mais
+        if (vagasAtuais <= LIMITE_MINIMO_VAGAS) return LIMITE_MINIMO_VAGAS;
+        
+        // Desce 1 vaga a cada 40 segundos (sem chance, agora é certeza)
+        return vagasAtuais - 1;
       });
-    }, 2000);
+    }, VELOCIDADE_DA_ESCASSEZ);
+    
     return () => clearInterval(intervalo);
   }, []);
 
-  // 2. Pitch Timer
+  // 2. Pitch Timer (Sincronizado com o Vídeo + Margem)
   useEffect(() => {
     const timer = setTimeout(() => {
       setMostrarBotao(true);
@@ -62,15 +68,12 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // 3. Prova Social INTELIGENTE
+  // 3. Prova Social Inteligente
   useEffect(() => {
     const ciclo = setInterval(() => {
       const nomeRandom = NOMES_LATAM_MASCULINOS[Math.floor(Math.random() * NOMES_LATAM_MASCULINOS.length)];
       const letraRandom = gerarLetraAleatoria();
       
-      // TRUQUE DO MENTOR:
-      // Se tiver pouca vaga (<= 2), mostramos apenas que tem gente NO CHECKOUT.
-      // Se tiver bastante vaga, mostramos que gente COMPROU.
       let acaoRandom;
       if (vagas <= LIMITE_MINIMO_VAGAS) {
          acaoRandom = ACOES_CHECKOUT[Math.floor(Math.random() * ACOES_CHECKOUT.length)];
@@ -82,17 +85,17 @@ function App() {
       setNotificacaoAtual(mensagemFinal);
 
       setTimeout(() => setNotificacaoAtual(null), 4000); 
-    }, 8000);
+    }, 8000); // Notificação a cada 8s
 
     return () => clearInterval(ciclo);
-  }, [vagas]); // Adicionei 'vagas' aqui para o efeito saber a hora de mudar
+  }, [vagas]); 
 
   return (
     <div className="min-h-screen flex flex-col items-center py-10 px-4 font-sans bg-gray-100 text-gray-800">
       
       <div className="w-full max-w-4xl bg-black rounded-xl shadow-2xl overflow-hidden mb-6 aspect-video relative group">
         <div className="w-full h-full flex items-center justify-center text-white bg-gray-900">
-           {/* VTURB AQUI */}
+           {/* SEU CÓDIGO DO VTURB AQUI */}
            <p className="text-gray-400">Video Player (VTurb)</p>
         </div>
       </div>
