@@ -2,16 +2,11 @@ import { useState, useEffect } from 'react';
 import { ShieldCheck, User } from 'lucide-react';
 
 // --- CONFIGURAÇÕES DE ELITE ---
-
-// Pitch ocorre em 406s + 4s de margem = 410s
-const TEMPO_PARA_BOTAO_APARECER = 410; 
-
+const TEMPO_PARA_BOTAO_APARECER = 410; // 406s do vídeo + 4s margem
 const LINK_DO_CHECKOUT = "https://pay.hotmart.com/N103569021R?off=s3u1zz2j"; 
 const VAGAS_INICIAIS = 19;
 const LIMITE_MINIMO_VAGAS = 2; 
-
-// Sincronia Mestra: Vagas e Notificações no mesmo ritmo (40 segundos)
-const VELOCIDADE_DA_ESCASSEZ = 40000; 
+const VELOCIDADE_DO_SISTEMA = 40000; // 40 segundos (Ritmo Cardíaco da Página)
 
 const NOMES_LATAM_MASCULINOS = [
   "Santiago", "Mateo", "Sebastián", "Miguel", "Felipe", "Alejandro", "Daniel", 
@@ -45,19 +40,57 @@ function App() {
   const [mostrarBotao, setMostrarBotao] = useState(false);
   const [notificacaoAtual, setNotificacaoAtual] = useState(null);
 
-  // 1. Escassez (Desce 1 vaga a cada 40s)
+  // --- O "GAME LOOP" (CORAÇÃO DO SISTEMA) ---
+  // Um único intervalo controla TUDO para garantir sincronia perfeita.
   useEffect(() => {
-    const intervalo = setInterval(() => {
+    const gameLoop = setInterval(() => {
+      
+      // PASSO 1: Decidir se baixa a vaga ou mantém
+      let vagaAtualizada;
       setVagas((vagasAtuais) => {
-        if (vagasAtuais <= LIMITE_MINIMO_VAGAS) return LIMITE_MINIMO_VAGAS;
-        return vagasAtuais - 1;
+        // Se já está no limite (2), mantém. Se não, baixa 1.
+        if (vagasAtuais <= LIMITE_MINIMO_VAGAS) {
+          vagaAtualizada = LIMITE_MINIMO_VAGAS;
+          return LIMITE_MINIMO_VAGAS;
+        } else {
+          vagaAtualizada = vagasAtuais - 1;
+          return vagasAtuais - 1;
+        }
       });
-    }, VELOCIDADE_DA_ESCASSEZ);
-    
-    return () => clearInterval(intervalo);
+
+      // PASSO 2: Gerar a notificação baseada na decisão da vaga
+      // Usamos um setTimeout minúsculo (100ms) só para garantir que o React processou o estado
+      setTimeout(() => {
+        const nomeRandom = NOMES_LATAM_MASCULINOS[Math.floor(Math.random() * NOMES_LATAM_MASCULINOS.length)];
+        const letraRandom = gerarLetraAleatoria();
+        let acaoRandom;
+
+        // SE o sistema travou em 2 vagas -> Mostra gente no Checkout
+        // SE o sistema ainda tem vagas caindo -> Mostra gente Comprando
+        // Usamos a variável 'vagas' direta do estado ou a lógica de limite
+        setVagas((vagasNoMomento) => {
+           if (vagasNoMomento <= LIMITE_MINIMO_VAGAS) {
+              acaoRandom = ACOES_CHECKOUT[Math.floor(Math.random() * ACOES_CHECKOUT.length)];
+           } else {
+              acaoRandom = ACOES_COMPRA[Math.floor(Math.random() * ACOES_COMPRA.length)];
+           }
+           
+           const mensagemFinal = `${nomeRandom} ${letraRandom}. ${acaoRandom}`;
+           setNotificacaoAtual(mensagemFinal);
+           return vagasNoMomento; // Retorna o mesmo valor só pra ler o estado
+        });
+
+        // Esconde a notificação depois de 6 segundos
+        setTimeout(() => setNotificacaoAtual(null), 6000);
+
+      }, 100);
+
+    }, VELOCIDADE_DO_SISTEMA); // Roda a cada 40s
+
+    return () => clearInterval(gameLoop);
   }, []);
 
-  // 2. Pitch Timer (410s)
+  // Timer separado APENAS para o Botão (pois ele só roda uma vez e para)
   useEffect(() => {
     const timer = setTimeout(() => {
       setMostrarBotao(true);
@@ -65,37 +98,12 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // 3. Prova Social SINCRONIZADA
-  // Agora roda exatamente no mesmo tempo da escassez (40s)
-  useEffect(() => {
-    const ciclo = setInterval(() => {
-      const nomeRandom = NOMES_LATAM_MASCULINOS[Math.floor(Math.random() * NOMES_LATAM_MASCULINOS.length)];
-      const letraRandom = gerarLetraAleatoria();
-      
-      let acaoRandom;
-      if (vagas <= LIMITE_MINIMO_VAGAS) {
-         acaoRandom = ACOES_CHECKOUT[Math.floor(Math.random() * ACOES_CHECKOUT.length)];
-      } else {
-         acaoRandom = ACOES_COMPRA[Math.floor(Math.random() * ACOES_COMPRA.length)];
-      }
-      
-      const mensagemFinal = `${nomeRandom} ${letraRandom}. ${acaoRandom}`;
-      setNotificacaoAtual(mensagemFinal);
-
-      // A notificação fica visível por 5 segundos
-      setTimeout(() => setNotificacaoAtual(null), 5000); 
-
-    }, VELOCIDADE_DA_ESCASSEZ); // Usa a MESMA variável de tempo (40s)
-
-    return () => clearInterval(ciclo);
-  }, [vagas]); 
-
   return (
     <div className="min-h-screen flex flex-col items-center py-10 px-4 font-sans bg-gray-100 text-gray-800">
       
       <div className="w-full max-w-4xl bg-black rounded-xl shadow-2xl overflow-hidden mb-6 aspect-video relative group">
         <div className="w-full h-full flex items-center justify-center text-white bg-gray-900">
-           {/* SEU CÓDIGO DO VTURB AQUI */}
+           {/* MANTENHA O CÓDIGO DO VTURB AQUI */}
            <p className="text-gray-400">Video Player (VTurb)</p>
         </div>
       </div>
