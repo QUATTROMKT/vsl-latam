@@ -1,16 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, User } from 'lucide-react';
 
-// --- CONFIGURAÇÕES DE ELITE ---
-const TEMPO_PARA_BOTAO_APARECER = 410; // 406s vídeo + 4s margem
+// --- CONFIGURAÇÕES ---
+const TEMPO_PARA_BOTAO_APARECER = 410; 
 const LINK_DO_CHECKOUT = "https://pay.hotmart.com/N103569021R?off=s3u1zz2j"; 
 const VAGAS_INICIAIS = 19;
 const LIMITE_MINIMO_VAGAS = 2; 
 
-// INTERVALOS ALEATÓRIOS (Em milissegundos)
-// O sistema vai sortear um número entre esses dois a cada venda
-const TEMPO_MINIMO = 20000; // Mínimo 20 segundos
-const TEMPO_MAXIMO = 50000; // Máximo 50 segundos
+const TEMPO_MINIMO = 20000; 
+const TEMPO_MAXIMO = 50000; 
 
 const NOMES_LATAM_MASCULINOS = [
   "Santiago", "Mateo", "Sebastián", "Miguel", "Felipe", "Alejandro", "Daniel", 
@@ -44,32 +42,22 @@ function App() {
   const [mostrarBotao, setMostrarBotao] = useState(false);
   const [notificacaoAtual, setNotificacaoAtual] = useState(null);
   
-  // Ref para guardar o timer e poder limpar se a pessoa sair da página
   const timeoutRef = useRef(null);
 
   // --- MOTOR DE ALEATORIEDADE ---
   useEffect(() => {
-    
     const rodarCicloAleatorio = () => {
-      // 1. Sorteia quanto tempo vai demorar para a próxima ação
-      // Fórmula: Math.random() * (MAX - MIN) + MIN
       const tempoProximaAcao = Math.floor(Math.random() * (TEMPO_MAXIMO - TEMPO_MINIMO + 1) + TEMPO_MINIMO);
       
-      console.log(`Próxima venda em: ${tempoProximaAcao / 1000} segundos`); // Só pra você ver no console se quiser
-
       timeoutRef.current = setTimeout(() => {
-        // 2. Executa a Ação (Baixar Vaga + Notificar)
-        
         setVagas((vagasAtuais) => {
           let novaVaga;
-          // Lógica de limite
           if (vagasAtuais <= LIMITE_MINIMO_VAGAS) {
             novaVaga = LIMITE_MINIMO_VAGAS;
           } else {
             novaVaga = vagasAtuais - 1;
           }
 
-          // 3. Dispara a notificação baseada na nova vaga (Sincronizado)
           const nomeRandom = NOMES_LATAM_MASCULINOS[Math.floor(Math.random() * NOMES_LATAM_MASCULINOS.length)];
           const letraRandom = gerarLetraAleatoria();
           let acaoRandom;
@@ -83,32 +71,36 @@ function App() {
           const mensagemFinal = `${nomeRandom} ${letraRandom}. ${acaoRandom}`;
           setNotificacaoAtual(mensagemFinal);
           
-          // Remove a notificação da tela após 5 segundos
           setTimeout(() => setNotificacaoAtual(null), 5000);
 
           return novaVaga;
         });
 
-        // 4. Agenda o próximo ciclo (Recursividade Infinita)
         rodarCicloAleatorio();
 
       }, tempoProximaAcao);
     };
 
-    // Inicia o primeiro ciclo
     rodarCicloAleatorio();
-
-    // Limpeza de memória se o componente desmontar
     return () => clearTimeout(timeoutRef.current);
   }, []);
 
-  // Timer do Botão (Pitch)
+  // Timer do Botão
   useEffect(() => {
     const timer = setTimeout(() => {
       setMostrarBotao(true);
     }, TEMPO_PARA_BOTAO_APARECER * 1000);
     return () => clearTimeout(timer);
   }, []);
+
+  // --- FUNÇÃO DE RASTREAMENTO DO CLIQUE ---
+  const handleCompraClick = () => {
+    // Verifica se o Pixel está carregado e dispara o evento "InitiateCheckout"
+    if (window.fbq) {
+      window.fbq('track', 'InitiateCheckout');
+      console.log("Evento InitiateCheckout disparado para o Pixel!");
+    }
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center py-10 px-4 font-sans bg-gray-100 text-gray-800">
@@ -135,7 +127,8 @@ function App() {
             href={LINK_DO_CHECKOUT}
             target="_blank"
             rel="noopener noreferrer"
-            className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-xl transition-transform hover:scale-105 uppercase text-center"
+            onClick={handleCompraClick} // AQUI ESTÁ O RASTREAMENTO DO CLICK
+            className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-xl transition-transform hover:scale-105 uppercase text-center cursor-pointer"
           >
             ¡QUIERO ASEGURAR MI CUPO AHORA!
           </a>
