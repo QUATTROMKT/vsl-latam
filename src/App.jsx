@@ -1,12 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, User } from 'lucide-react';
 
 // --- CONFIGURAÇÕES DE ELITE ---
-const TEMPO_PARA_BOTAO_APARECER = 410; // 406s do vídeo + 4s margem
+const TEMPO_PARA_BOTAO_APARECER = 410; // 406s vídeo + 4s margem
 const LINK_DO_CHECKOUT = "https://pay.hotmart.com/N103569021R?off=s3u1zz2j"; 
 const VAGAS_INICIAIS = 19;
 const LIMITE_MINIMO_VAGAS = 2; 
-const VELOCIDADE_DO_SISTEMA = 40000; // 40 segundos (Ritmo Cardíaco da Página)
+
+// INTERVALOS ALEATÓRIOS (Em milissegundos)
+// O sistema vai sortear um número entre esses dois a cada venda
+const TEMPO_MINIMO = 20000; // Mínimo 20 segundos
+const TEMPO_MAXIMO = 50000; // Máximo 50 segundos
 
 const NOMES_LATAM_MASCULINOS = [
   "Santiago", "Mateo", "Sebastián", "Miguel", "Felipe", "Alejandro", "Daniel", 
@@ -39,58 +43,66 @@ function App() {
   const [vagas, setVagas] = useState(VAGAS_INICIAIS);
   const [mostrarBotao, setMostrarBotao] = useState(false);
   const [notificacaoAtual, setNotificacaoAtual] = useState(null);
+  
+  // Ref para guardar o timer e poder limpar se a pessoa sair da página
+  const timeoutRef = useRef(null);
 
-  // --- O "GAME LOOP" (CORAÇÃO DO SISTEMA) ---
-  // Um único intervalo controla TUDO para garantir sincronia perfeita.
+  // --- MOTOR DE ALEATORIEDADE ---
   useEffect(() => {
-    const gameLoop = setInterval(() => {
+    
+    const rodarCicloAleatorio = () => {
+      // 1. Sorteia quanto tempo vai demorar para a próxima ação
+      // Fórmula: Math.random() * (MAX - MIN) + MIN
+      const tempoProximaAcao = Math.floor(Math.random() * (TEMPO_MAXIMO - TEMPO_MINIMO + 1) + TEMPO_MINIMO);
       
-      // PASSO 1: Decidir se baixa a vaga ou mantém
-      let vagaAtualizada;
-      setVagas((vagasAtuais) => {
-        // Se já está no limite (2), mantém. Se não, baixa 1.
-        if (vagasAtuais <= LIMITE_MINIMO_VAGAS) {
-          vagaAtualizada = LIMITE_MINIMO_VAGAS;
-          return LIMITE_MINIMO_VAGAS;
-        } else {
-          vagaAtualizada = vagasAtuais - 1;
-          return vagasAtuais - 1;
-        }
-      });
+      console.log(`Próxima venda em: ${tempoProximaAcao / 1000} segundos`); // Só pra você ver no console se quiser
 
-      // PASSO 2: Gerar a notificação baseada na decisão da vaga
-      // Usamos um setTimeout minúsculo (100ms) só para garantir que o React processou o estado
-      setTimeout(() => {
-        const nomeRandom = NOMES_LATAM_MASCULINOS[Math.floor(Math.random() * NOMES_LATAM_MASCULINOS.length)];
-        const letraRandom = gerarLetraAleatoria();
-        let acaoRandom;
+      timeoutRef.current = setTimeout(() => {
+        // 2. Executa a Ação (Baixar Vaga + Notificar)
+        
+        setVagas((vagasAtuais) => {
+          let novaVaga;
+          // Lógica de limite
+          if (vagasAtuais <= LIMITE_MINIMO_VAGAS) {
+            novaVaga = LIMITE_MINIMO_VAGAS;
+          } else {
+            novaVaga = vagasAtuais - 1;
+          }
 
-        // SE o sistema travou em 2 vagas -> Mostra gente no Checkout
-        // SE o sistema ainda tem vagas caindo -> Mostra gente Comprando
-        // Usamos a variável 'vagas' direta do estado ou a lógica de limite
-        setVagas((vagasNoMomento) => {
-           if (vagasNoMomento <= LIMITE_MINIMO_VAGAS) {
-              acaoRandom = ACOES_CHECKOUT[Math.floor(Math.random() * ACOES_CHECKOUT.length)];
-           } else {
-              acaoRandom = ACOES_COMPRA[Math.floor(Math.random() * ACOES_COMPRA.length)];
-           }
-           
-           const mensagemFinal = `${nomeRandom} ${letraRandom}. ${acaoRandom}`;
-           setNotificacaoAtual(mensagemFinal);
-           return vagasNoMomento; // Retorna o mesmo valor só pra ler o estado
+          // 3. Dispara a notificação baseada na nova vaga (Sincronizado)
+          const nomeRandom = NOMES_LATAM_MASCULINOS[Math.floor(Math.random() * NOMES_LATAM_MASCULINOS.length)];
+          const letraRandom = gerarLetraAleatoria();
+          let acaoRandom;
+
+          if (novaVaga <= LIMITE_MINIMO_VAGAS) {
+             acaoRandom = ACOES_CHECKOUT[Math.floor(Math.random() * ACOES_CHECKOUT.length)];
+          } else {
+             acaoRandom = ACOES_COMPRA[Math.floor(Math.random() * ACOES_COMPRA.length)];
+          }
+          
+          const mensagemFinal = `${nomeRandom} ${letraRandom}. ${acaoRandom}`;
+          setNotificacaoAtual(mensagemFinal);
+          
+          // Remove a notificação da tela após 5 segundos
+          setTimeout(() => setNotificacaoAtual(null), 5000);
+
+          return novaVaga;
         });
 
-        // Esconde a notificação depois de 6 segundos
-        setTimeout(() => setNotificacaoAtual(null), 6000);
+        // 4. Agenda o próximo ciclo (Recursividade Infinita)
+        rodarCicloAleatorio();
 
-      }, 100);
+      }, tempoProximaAcao);
+    };
 
-    }, VELOCIDADE_DO_SISTEMA); // Roda a cada 40s
+    // Inicia o primeiro ciclo
+    rodarCicloAleatorio();
 
-    return () => clearInterval(gameLoop);
+    // Limpeza de memória se o componente desmontar
+    return () => clearTimeout(timeoutRef.current);
   }, []);
 
-  // Timer separado APENAS para o Botão (pois ele só roda uma vez e para)
+  // Timer do Botão (Pitch)
   useEffect(() => {
     const timer = setTimeout(() => {
       setMostrarBotao(true);
