@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
-import { ShieldCheck, User, Bell } from 'lucide-react';
+import { ShieldCheck, User } from 'lucide-react';
 
 // --- CONFIGURAÇÕES DE ELITE ---
 
-// Pitch ocorre em 406s. Adicionei +4s de margem para o tempo de reação do usuário.
+// Pitch ocorre em 406s + 4s de margem = 410s
 const TEMPO_PARA_BOTAO_APARECER = 410; 
 
 const LINK_DO_CHECKOUT = "https://pay.hotmart.com/N103569021R?off=s3u1zz2j"; 
 const VAGAS_INICIAIS = 19;
 const LIMITE_MINIMO_VAGAS = 2; 
 
-// Tempo para descer uma vaga (40 segundos em milissegundos)
+// Sincronia Mestra: Vagas e Notificações no mesmo ritmo (40 segundos)
 const VELOCIDADE_DA_ESCASSEZ = 40000; 
 
 const NOMES_LATAM_MASCULINOS = [
@@ -45,14 +45,11 @@ function App() {
   const [mostrarBotao, setMostrarBotao] = useState(false);
   const [notificacaoAtual, setNotificacaoAtual] = useState(null);
 
-  // 1. Escassez Lenta e Constante (A cada 40s)
+  // 1. Escassez (Desce 1 vaga a cada 40s)
   useEffect(() => {
     const intervalo = setInterval(() => {
       setVagas((vagasAtuais) => {
-        // Se já chegou no limite, não desce mais
         if (vagasAtuais <= LIMITE_MINIMO_VAGAS) return LIMITE_MINIMO_VAGAS;
-        
-        // Desce 1 vaga a cada 40 segundos (sem chance, agora é certeza)
         return vagasAtuais - 1;
       });
     }, VELOCIDADE_DA_ESCASSEZ);
@@ -60,7 +57,7 @@ function App() {
     return () => clearInterval(intervalo);
   }, []);
 
-  // 2. Pitch Timer (Sincronizado com o Vídeo + Margem)
+  // 2. Pitch Timer (410s)
   useEffect(() => {
     const timer = setTimeout(() => {
       setMostrarBotao(true);
@@ -68,7 +65,8 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // 3. Prova Social Inteligente
+  // 3. Prova Social SINCRONIZADA
+  // Agora roda exatamente no mesmo tempo da escassez (40s)
   useEffect(() => {
     const ciclo = setInterval(() => {
       const nomeRandom = NOMES_LATAM_MASCULINOS[Math.floor(Math.random() * NOMES_LATAM_MASCULINOS.length)];
@@ -84,8 +82,10 @@ function App() {
       const mensagemFinal = `${nomeRandom} ${letraRandom}. ${acaoRandom}`;
       setNotificacaoAtual(mensagemFinal);
 
-      setTimeout(() => setNotificacaoAtual(null), 4000); 
-    }, 8000); // Notificação a cada 8s
+      // A notificação fica visível por 5 segundos
+      setTimeout(() => setNotificacaoAtual(null), 5000); 
+
+    }, VELOCIDADE_DA_ESCASSEZ); // Usa a MESMA variável de tempo (40s)
 
     return () => clearInterval(ciclo);
   }, [vagas]); 
