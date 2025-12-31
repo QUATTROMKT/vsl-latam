@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, User } from 'lucide-react';
 
 // --- CONFIGURAÇÕES ---
-const TEMPO_PARA_BOTAO_APARECER = 410; // 406s do vídeo + 4s de margem
+const TEMPO_PARA_BOTAO_APARECER = 410; // 406s vídeo + 4s margem
 const LINK_DO_CHECKOUT = "https://pay.hotmart.com/N103569021R?off=s3u1zz2j"; 
 const VAGAS_INICIAIS = 19;
 const LIMITE_MINIMO_VAGAS = 2; 
@@ -40,7 +40,7 @@ const gerarLetraAleatoria = () => {
 
 function App() {
   const [vagas, setVagas] = useState(VAGAS_INICIAIS);
-  const [mostrarOferta, setMostrarOferta] = useState(false); // Mudamos o nome para ficar mais claro
+  const [mostrarOferta, setMostrarOferta] = useState(false);
   const [notificacaoAtual, setNotificacaoAtual] = useState(null);
   
   const timeoutRef = useRef(null);
@@ -117,11 +117,11 @@ function App() {
         ></vturb-smartplayer>
       </div>
 
-      {/* --- BLOCO DA OFERTA (Só aparece depois do Pitch) --- */}
+      {/* --- BLOCO DA OFERTA (TUDO ISSO APARECE JUNTO NO PITCH) --- */}
       {mostrarOferta && (
         <div className="w-full max-w-2xl flex flex-col items-center animate-fade-in">
           
-          {/* 1. TEXTO DE ESCASSEZ */}
+          {/* 1. TEXTO DE ESCASSEZ (SEPARADO DOS BOTÕES, COMO NO ORIGINAL) */}
           <div className="text-center space-y-2 mb-6">
             <p className="text-lg md:text-xl font-medium text-gray-700">
               Cupos disponibles: solo quedan <span className="text-red-600 font-bold text-2xl animate-pulse">{vagas}</span> con precio promocional
@@ -131,26 +131,40 @@ function App() {
             </p>
           </div>
 
-          {/* 2. BOTÃO DE CHECKOUT */}
-          <div className="animate-bounce flex flex-col items-center gap-2 mb-8 w-full">
+          {/* 2. ÁREA DOS BOTÕES (DUPLO CTA) */}
+          <div className="flex flex-col items-center gap-3 mb-8 w-full max-w-md">
+            
+            {/* BOTÃO PRETO - Limpo, sem contador de vagas */}
             <a 
               href={LINK_DO_CHECKOUT}
               target="_blank"
               rel="noopener noreferrer"
               onClick={handleCompraClick}
-              className="w-full max-w-md bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-6 rounded-full text-xl shadow-xl transition-transform hover:scale-105 uppercase text-center cursor-pointer flex flex-col items-center justify-center leading-tight"
+              className="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg transition-transform hover:scale-105 uppercase text-center cursor-pointer border-2 border-transparent hover:border-gray-700"
             >
-              <span>¡QUIERO ASEGURAR MI CUPO!</span>
+              ASEGURAR MI LUGAR
+            </a>
+
+            {/* BOTÃO VERMELHO - Copy Completa */}
+            <a 
+              href={LINK_DO_CHECKOUT}
+              target="_blank"
+              rel="noopener noreferrer"
+              onClick={handleCompraClick}
+              className="w-full bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-4 rounded-full text-lg shadow-xl transition-transform hover:scale-105 uppercase text-center cursor-pointer flex flex-col items-center justify-center leading-tight animate-pulse"
+            >
+              <span>ASEGURAR MI LUGAR CON PROMOCIÓN EXCLUSIVA</span>
               <span className="text-xs font-normal opacity-90 mt-1">Oferta por tiempo limitado</span>
             </a>
             
+            {/* Selo de Segurança */}
             <div className="flex items-center gap-2 text-gray-500 text-xs uppercase tracking-wide mt-2">
               <ShieldCheck size={14} className="text-green-500" />
               <span>Sitio Blindado y 100% Seguro</span>
             </div>
           </div>
 
-          {/* 3. NOTIFICAÇÃO (AGORA FIXA EMBAIXO DO BOTÃO) */}
+          {/* 3. NOTIFICAÇÃO FIXA EMBAIXO */}
           <div className="h-20 w-full max-w-md flex justify-center items-start">
             {notificacaoAtual ? (
               <div className="bg-white border border-gray-200 shadow-md rounded-lg p-3 flex items-center gap-3 w-full animate-slide-up">
@@ -165,7 +179,6 @@ function App() {
                 </div>
               </div>
             ) : (
-              // Espaço vazio para o layout não pular quando não tem notificação
               <div className="text-xs text-gray-300 italic">...</div>
             )}
           </div>
