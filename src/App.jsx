@@ -44,7 +44,20 @@ function App() {
   
   const timeoutRef = useRef(null);
 
-  // --- MOTOR DE ALEATORIEDADE ---
+  // --- 1. CARREGAR O VÍDEO DO VTURB (Script Injector) ---
+  useEffect(() => {
+    // Verifica se o script já existe para não carregar 2 vezes
+    if (document.getElementById('vturb-script')) return;
+
+    const script = document.createElement("script");
+    // Esse link veio do código Javascript que você me mandou
+    script.src = "https://scripts.converteai.net/b6a53cb5-aa1a-47b3-af2b-b93c7fe8b86c/players/6954a9d9a1bd76c80af63b83/v4/player.js";
+    script.async = true;
+    script.id = 'vturb-script';
+    document.head.appendChild(script);
+  }, []);
+
+  // --- 2. MOTOR DE ALEATORIEDADE (Notificações) ---
   useEffect(() => {
     const rodarCicloAleatorio = () => {
       const tempoProximaAcao = Math.floor(Math.random() * (TEMPO_MAXIMO - TEMPO_MINIMO + 1) + TEMPO_MINIMO);
@@ -93,23 +106,23 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // --- FUNÇÃO DE RASTREAMENTO DO CLIQUE ---
+  // Rastreamento do Clique
   const handleCompraClick = () => {
-    // Verifica se o Pixel está carregado e dispara o evento "InitiateCheckout"
     if (window.fbq) {
       window.fbq('track', 'InitiateCheckout');
-      console.log("Evento InitiateCheckout disparado para o Pixel!");
     }
   };
 
   return (
     <div className="min-h-screen flex flex-col items-center py-10 px-4 font-sans bg-gray-100 text-gray-800">
       
-      <div className="w-full max-w-4xl bg-black rounded-xl shadow-2xl overflow-hidden mb-6 aspect-video relative group">
-        <div className="w-full h-full flex items-center justify-center text-white bg-gray-900">
-           {/* MANTENHA O CÓDIGO DO VTURB AQUI */}
-           <p className="text-gray-400">Video Player (VTurb)</p>
-        </div>
+      {/* --- ÁREA DO VÍDEO (AGORA COM VTURB REAL) --- */}
+      <div className="w-full max-w-4xl bg-black rounded-xl shadow-2xl overflow-hidden mb-6 aspect-video relative group z-10">
+        {/* A Tag vturb-smartplayer é um elemento customizado do script deles */}
+        <vturb-smartplayer
+          id="vid-6954a9d9a1bd76c80af63b83"
+          style={{ width: '100%', height: '100%', display: 'block' }}
+        ></vturb-smartplayer>
       </div>
 
       <div className="text-center space-y-2 mb-8 max-w-2xl">
@@ -127,7 +140,7 @@ function App() {
             href={LINK_DO_CHECKOUT}
             target="_blank"
             rel="noopener noreferrer"
-            onClick={handleCompraClick} // AQUI ESTÁ O RASTREAMENTO DO CLICK
+            onClick={handleCompraClick}
             className="bg-red-600 hover:bg-red-700 text-white font-bold py-4 px-10 rounded-full text-xl shadow-xl transition-transform hover:scale-105 uppercase text-center cursor-pointer"
           >
             ¡QUIERO ASEGURAR MI CUPO AHORA!
