@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { ShieldCheck, User, CheckCircle, ArrowRight, Brain, Activity, Heart, X, Check } from 'lucide-react';
 import { Analytics } from '@vercel/analytics/react';
+import { SpeedInsights } from '@vercel/speed-insights/react';
 
 // ==========================================
 // 1. CONFIGURAÇÃO DAS PERGUNTAS
@@ -449,8 +450,9 @@ function App() {
         .animate-slide-up { animation: slide-up 0.3s ease-out forwards; }
       `}</style>
       
-      {/* ANALYTICS: O ESPIÃO DA VERCEL */}
+      {/* VERCEL TOOLKIT (Analytics + Speed) */}
       <Analytics />
+      <SpeedInsights />
 
     </div>
   );
