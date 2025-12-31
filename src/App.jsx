@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
-import { ShieldCheck, User, CheckCircle, ArrowRight } from 'lucide-react';
+import { ShieldCheck, User, CheckCircle, ArrowRight, Brain, Activity, Heart, X, Check } from 'lucide-react';
+import { Analytics } from '@vercel/analytics/react';
 
 // ==========================================
 // 1. CONFIGURAÇÃO DAS PERGUNTAS
@@ -128,12 +129,11 @@ function App() {
 
   // --- LÓGICA DE NAVEGAÇÃO DO QUIZ ---
   const iniciarQuiz = () => {
-    trackCustomEvent('QuizStart'); // 📡 Rastreia Início
+    trackCustomEvent('QuizStart'); 
     setFaseAtual('quiz');
   };
 
   const irParaProximaEtapa = () => {
-    // Rastreia qual pergunta foi respondida (Ex: "Answered_Q1")
     trackCustomEvent(`QuestionAnswered`, { question_number: indicePerguntaAtual + 1 });
 
     const proxima = indicePerguntaAtual + 1;
@@ -141,7 +141,7 @@ function App() {
       setIndicePerguntaAtual(proxima);
       window.scrollTo(0, 0);
     } else {
-      trackCustomEvent('QuizFinished'); // 📡 Rastreia Fim das Perguntas
+      trackCustomEvent('QuizFinished'); 
       setFaseAtual('analisando');
     }
   };
@@ -164,7 +164,6 @@ function App() {
   useEffect(() => {
     if (faseAtual !== 'vsl') return;
     
-    // Rastreia que chegou na VSL (Funil Completo)
     trackCustomEvent('VSLLoaded'); 
 
     if (document.getElementById('vturb-script')) return;
@@ -181,7 +180,7 @@ function App() {
 
     const timer = setTimeout(() => {
         setMostrarOferta(true);
-        trackCustomEvent('PitchReveal'); // 📡 Rastreia que viu a oferta
+        trackCustomEvent('PitchReveal'); 
     }, TEMPO_PARA_BOTAO_APARECER * 1000);
 
     const rodarNotificacoes = () => {
@@ -207,7 +206,7 @@ function App() {
   }, [faseAtual]);
 
   const handleCompraClick = () => {
-    if (window.fbq) window.fbq('track', 'InitiateCheckout'); // 📡 Evento Padrão Importante
+    if (window.fbq) window.fbq('track', 'InitiateCheckout'); 
     if (window.smartplayer && window.smartplayer.instances) {
       window.smartplayer.instances.forEach((i) => i.pause());
     }
@@ -449,6 +448,10 @@ function App() {
         @keyframes slide-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slide-up { animation: slide-up 0.3s ease-out forwards; }
       `}</style>
+      
+      {/* ANALYTICS: O ESPIÃO DA VERCEL */}
+      <Analytics />
+
     </div>
   );
 }
