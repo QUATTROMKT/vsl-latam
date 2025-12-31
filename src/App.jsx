@@ -101,9 +101,18 @@ function App() {
     return () => clearTimeout(timer);
   }, []);
 
-  // Rastreamento
+  // --- 4. AÇÃO INTELIGENTE DO CLIQUE (RASTREAR + PAUSAR) ---
   const handleCompraClick = () => {
+    // A. Rastrear no Facebook
     if (window.fbq) window.fbq('track', 'InitiateCheckout');
+    
+    // B. Comando Secreto do VTurb para PAUSAR o vídeo
+    // O script do VTurb cria esse objeto 'smartplayer' na janela do navegador
+    if (window.smartplayer && window.smartplayer.instances) {
+      window.smartplayer.instances.forEach((instancia) => {
+        instancia.pause();
+      });
+    }
   };
 
   return (
@@ -121,7 +130,7 @@ function App() {
       {mostrarOferta && (
         <div className="w-full max-w-2xl flex flex-col items-center animate-fade-in">
           
-          {/* 1. TEXTO DE ESCASSEZ (SEPARADO DOS BOTÕES, COMO NO ORIGINAL) */}
+          {/* 1. TEXTO DE ESCASSEZ */}
           <div className="text-center space-y-2 mb-6">
             <p className="text-lg md:text-xl font-medium text-gray-700">
               Cupos disponibles: solo quedan <span className="text-red-600 font-bold text-2xl animate-pulse">{vagas}</span> con precio promocional
@@ -134,10 +143,10 @@ function App() {
           {/* 2. ÁREA DOS BOTÕES (DUPLO CTA) */}
           <div className="flex flex-col items-center gap-3 mb-8 w-full max-w-md">
             
-            {/* BOTÃO PRETO - Limpo, sem contador de vagas */}
+            {/* BOTÃO PRETO */}
             <a 
               href={LINK_DO_CHECKOUT}
-              target="_blank"
+              target="_blank" 
               rel="noopener noreferrer"
               onClick={handleCompraClick}
               className="w-full bg-gray-900 hover:bg-black text-white font-bold py-3 px-6 rounded-full text-lg shadow-lg transition-transform hover:scale-105 uppercase text-center cursor-pointer border-2 border-transparent hover:border-gray-700"
@@ -145,7 +154,7 @@ function App() {
               ASEGURAR MI LUGAR
             </a>
 
-            {/* BOTÃO VERMELHO - Copy Completa */}
+            {/* BOTÃO VERMELHO */}
             <a 
               href={LINK_DO_CHECKOUT}
               target="_blank"
