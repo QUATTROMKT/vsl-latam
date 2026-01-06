@@ -55,7 +55,8 @@ const PERGUNTAS_QUIZ = [
   {
     id: 5, 
     titulo: "Esto explica por qué nada de lo que has intentado hasta ahora ha funcionado:",
-    imagem: "/noticia-cnn.png", 
+    // IMAGEM CONVERTIDA PARA WEBP 👇
+    imagem: "/noticia-cnn.webp", 
     textoBotao: "Ahora entiendo",
     opcoes: [] 
   },
@@ -73,7 +74,7 @@ const PERGUNTAS_QUIZ = [
 const TEMPO_DE_ANALISE_FAKE = 4000; 
 
 // --- CONFIGURAÇÕES DA VSL ---
-const TEMPO_PARA_BOTAO_APARECER = 450; // 410 segundos
+const TEMPO_PARA_BOTAO_APARECER = 410; // 410 segundos
 const LINK_DO_CHECKOUT = "https://pay.hotmart.com/N103569021R?off=s3u1zz2j"; 
 const VAGAS_INICIAIS = 19;
 const LIMITE_MINIMO_VAGAS = 2; 
@@ -169,6 +170,7 @@ function App() {
     if (faseAtual !== 'vsl') return;
     trackCustomEvent('VSLLoaded'); 
     
+    // Script de Otimização do VTurb (Performance)
     !function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);
 
     if (document.getElementById('vturb-script')) return;
@@ -360,6 +362,7 @@ function App() {
           </div>
 
           <div className="w-full max-w-sm mx-auto bg-transparent rounded-xl overflow-hidden mb-6 relative z-10 aspect-[3/4]">
+            {/* PLAYER VTURB */}
             <vturb-smartplayer 
               id="vid-695c2cb510ea8bb29001aba0" 
               style={{ width: '100%', height: '100%', display: 'block' }}
@@ -413,7 +416,8 @@ function App() {
                 {/* 1. SEÇÃO DA ESPECIALISTA */}
                 <div className="flex flex-col items-center mb-10 text-center">
                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-amber-400 overflow-hidden shadow-2xl mb-4 relative">
-                     <img src="/nadiaexpert.png" alt="Dra. Nádia Giménez" className="w-full h-full object-cover"/>
+                     {/* WEBP */}
+                     <img src="/nadiaexpert.webp" alt="Dra. Nádia Giménez" className="w-full h-full object-cover"/>
                    </div>
                    <h3 className="text-2xl font-bold text-amber-400">Dra. Nádia Giménez</h3>
                    <p className="text-gray-300 text-sm">Neurocientífica & Sexóloga Clínica</p>
@@ -448,13 +452,13 @@ function App() {
                     Hombres como tú que ya salvaron sus matrimonios:
                   </h3>
                   <div className="grid gap-6 md:grid-cols-2">
-                    {/* Imagem 1 no Box Branco */}
+                    {/* Imagem 1 no Box Branco WEBP + LAZY */}
                     <div className="bg-white p-2 rounded-xl shadow-lg hover:scale-105 transition-transform duration-300">
-                      <img src="/prova1.png" alt="Testimonio 1" className="w-full rounded-lg border border-gray-100" />
+                      <img src="/prova1.webp" loading="lazy" alt="Testimonio 1" className="w-full rounded-lg border border-gray-100" />
                     </div>
-                    {/* Imagem 2 no Box Branco */}
+                    {/* Imagem 2 no Box Branco WEBP + LAZY */}
                     <div className="bg-white p-2 rounded-xl shadow-lg hover:scale-105 transition-transform duration-300">
-                      <img src="/prova2.png" alt="Testimonio 2" className="w-full rounded-lg border border-gray-100" />
+                      <img src="/prova2.webp" loading="lazy" alt="Testimonio 2" className="w-full rounded-lg border border-gray-100" />
                     </div>
                   </div>
                 </div>
@@ -465,7 +469,8 @@ function App() {
                      Acceso Inmediato al Sistema Completo:
                    </h3>
                    <div className="flex justify-center mb-8">
-                      <img src="/nomeproduto.png" alt="Sistema Completo" className="w-full max-w-sm drop-shadow-2xl animate-pulse" />
+                      {/* PRODUTO WEBP + LAZY */}
+                      <img src="/nomeproduto.webp" loading="lazy" alt="Sistema Completo" className="w-full max-w-sm drop-shadow-2xl animate-pulse" />
                    </div>
                    <div className="grid gap-6 md:grid-cols-2">
                       <div className="flex gap-4 items-start"><BookOpen className="text-blue-600 shrink-0" size={24} /><div><h4 className="font-bold">El Manual Principal</h4><p className="text-xs text-gray-600">Paso a paso de 28 días.</p></div></div>
@@ -475,29 +480,29 @@ function App() {
                    </div>
                 </div>
 
-                {/* 5. SEÇÃO BÔNUS (COM 4 BÔNUS) */}
+                {/* 5. SEÇÃO BÔNUS (COM 4 BÔNUS WEBP + LAZY) */}
                 <div className="max-w-3xl mx-auto mb-12">
                   <h3 className="text-2xl font-bold text-center text-amber-400 mb-8">
                     ¡Solo HOY! Recibe 4 Regalos Exclusivos GRATIS:
                   </h3>
                   <div className="space-y-6">
                     <div className="bg-slate-800 border-l-4 border-amber-400 p-4 rounded-r-lg flex flex-col md:flex-row gap-4 items-center">
-                      <img src="/bonus1.png" alt="Bono 1" className="w-24 h-auto rounded shadow-md"/>
+                      <img src="/bonus1.webp" loading="lazy" alt="Bono 1" className="w-24 h-auto rounded shadow-md"/>
                       <div className="flex-1"><h4 className="font-bold text-white text-lg">Bono 1: Comandos Verbales</h4><p className="text-sm text-gray-400">Frases exactas para decir en la cama.</p></div>
                       <div className="text-right shrink-0"><span className="text-xs text-red-400 line-through block">US$ 29</span><span className="font-bold text-green-400">GRATIS</span></div>
                     </div>
                     <div className="bg-slate-800 border-l-4 border-amber-400 p-4 rounded-r-lg flex flex-col md:flex-row gap-4 items-center">
-                      <img src="/bonus2.png" alt="Bono 2" className="w-24 h-auto rounded shadow-md"/>
+                      <img src="/bonus2.webp" loading="lazy" alt="Bono 2" className="w-24 h-auto rounded shadow-md"/>
                       <div className="flex-1"><h4 className="font-bold text-white text-lg">Bono 2: 9 Puntos de Placer</h4><p className="text-sm text-gray-400">Dónde tocarla para activar la respuesta física.</p></div>
                       <div className="text-right shrink-0"><span className="text-xs text-red-400 line-through block">US$ 19</span><span className="font-bold text-green-400">GRATIS</span></div>
                     </div>
                     <div className="bg-slate-800 border-l-4 border-amber-400 p-4 rounded-r-lg flex flex-col md:flex-row gap-4 items-center">
-                      <img src="/bonus3.png" alt="Bono 3" className="w-24 h-auto rounded shadow-md"/>
+                      <img src="/bonus3.webp" loading="lazy" alt="Bono 3" className="w-24 h-auto rounded shadow-md"/>
                       <div className="flex-1"><h4 className="font-bold text-white text-lg">Bono 3: Calendario de Blindaje</h4><p className="text-sm text-gray-400">Sabe qué días ella está receptiva.</p></div>
                       <div className="text-right shrink-0"><span className="text-xs text-red-400 line-through block">US$ 15</span><span className="font-bold text-green-400">GRATIS</span></div>
                     </div>
                      <div className="bg-slate-800 border-l-4 border-amber-400 p-4 rounded-r-lg flex flex-col md:flex-row gap-4 items-center">
-                      <img src="/bonus4.png" alt="Bono 4" className="w-24 h-auto rounded shadow-md"/>
+                      <img src="/bonus4.webp" loading="lazy" alt="Bono 4" className="w-24 h-auto rounded shadow-md"/>
                       <div className="flex-1"><h4 className="font-bold text-white text-lg">Bono 4: Guía de Rescate Inmediato</h4><p className="text-sm text-gray-400">Qué hacer cuando sientes que la relación peligra.</p></div>
                       <div className="text-right shrink-0"><span className="text-xs text-red-400 line-through block">US$ 25</span><span className="font-bold text-green-400">GRATIS</span></div>
                     </div>
