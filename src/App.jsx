@@ -73,7 +73,7 @@ const PERGUNTAS_QUIZ = [
 const TEMPO_DE_ANALISE_FAKE = 4000; 
 
 // --- CONFIGURAÇÕES DA VSL ---
-const TEMPO_PARA_BOTAO_APARECER = 410; // 410 segundos
+const TEMPO_PARA_BOTAO_APARECER = 445; // 410 segundos
 const LINK_DO_CHECKOUT = "https://pay.hotmart.com/N103569021R?off=s3u1zz2j"; 
 const VAGAS_INICIAIS = 19;
 const LIMITE_MINIMO_VAGAS = 2; 
