@@ -55,7 +55,7 @@ const PERGUNTAS_QUIZ = [
   {
     id: 5, 
     titulo: "Esto explica por qué nada de lo que has intentado hasta ahora ha funcionado:",
-    // IMAGEM CONVERTIDA PARA WEBP 👇
+    // IMAGEM CORRIGIDA PARA WEBP 👇
     imagem: "/noticia-cnn.webp", 
     textoBotao: "Ahora entiendo",
     opcoes: [] 
@@ -128,11 +128,9 @@ function App() {
   const [mostrarOferta, setMostrarOferta] = useState(false);
   const [notificacaoAtual, setNotificacaoAtual] = useState(null);
   const timeoutRef = useRef(null);
-  
-  // REFERÊNCIA PARA O SCROLL AUTOMÁTICO
   const offerSectionRef = useRef(null);
 
-  // --- LÓGICA DE NAVEGAÇÃO DO QUIZ ---
+  // --- QUIZ ---
   const iniciarQuiz = () => {
     trackCustomEvent('QuizStart'); 
     setFaseAtual('quiz');
@@ -140,7 +138,6 @@ function App() {
 
   const irParaProximaEtapa = () => {
     trackCustomEvent(`QuestionAnswered`, { question_number: indicePerguntaAtual + 1 });
-
     const proxima = indicePerguntaAtual + 1;
     if (proxima < PERGUNTAS_QUIZ.length) {
       setIndicePerguntaAtual(proxima);
@@ -151,7 +148,7 @@ function App() {
     }
   };
 
-  // --- LÓGICA DA ANÁLISE (2 BARRAS) ---
+  // --- ANÁLISE ---
   useEffect(() => {
     if (faseAtual !== 'analisando') return;
     const intervalo = setInterval(() => {
@@ -161,45 +158,39 @@ function App() {
     const timer = setTimeout(() => {
       setFaseAtual('resultado'); 
     }, TEMPO_DE_ANALISE_FAKE + 500);
-
     return () => { clearInterval(intervalo); clearTimeout(timer); };
   }, [faseAtual]);
 
-  // --- LÓGICA DA VSL (CARREGAMENTO + OTIMIZAÇÃO) ---
+  // --- VSL (NOVO PLAYER) ---
   useEffect(() => {
     if (faseAtual !== 'vsl') return;
     trackCustomEvent('VSLLoaded'); 
-    
-    // Script de Otimização do VTurb (Performance)
+
+    // Otimização VTurb
     !function(i,n){i._plt=i._plt||(n&&n.timeOrigin?n.timeOrigin+n.now():Date.now())}(window,performance);
 
     if (document.getElementById('vturb-script')) return;
     const script = document.createElement("script");
+    // VÍDEO NOVO ATUALIZADO
     script.src = "https://scripts.converteai.net/b6a53cb5-aa1a-47b3-af2b-b93c7fe8b86c/players/695c2cb510ea8bb29001aba0/v4/player.js";
     script.async = true;
     script.id = 'vturb-script';
     document.head.appendChild(script);
   }, [faseAtual]);
 
-  // --- LÓGICA DA VSL (TIMER + SCROLL AUTOMÁTICO) ---
+  // --- TIMER E SCROLL AUTOMÁTICO ---
   useEffect(() => {
     if (faseAtual !== 'vsl') return;
-
-    // TIMER DO PITCH
     const timer = setTimeout(() => {
         setMostrarOferta(true);
         trackCustomEvent('PitchReveal'); 
-        
-        // SCROLL SUAVE AUTOMÁTICO PARA A OFERTA
         setTimeout(() => {
           if (offerSectionRef.current) {
             offerSectionRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
           }
         }, 100); 
-
     }, TEMPO_PARA_BOTAO_APARECER * 1000);
 
-    // NOTIFICAÇÕES
     const rodarNotificacoes = () => {
       const tempo = Math.floor(Math.random() * (TEMPO_MAXIMO - TEMPO_MINIMO + 1) + TEMPO_MINIMO);
       timeoutRef.current = setTimeout(() => {
@@ -217,7 +208,6 @@ function App() {
       }, tempo);
     };
     rodarNotificacoes();
-
     return () => { clearTimeout(timer); clearTimeout(timeoutRef.current); };
   }, [faseAtual]);
 
@@ -304,7 +294,7 @@ function App() {
         </div>
       )}
 
-      {/* FASE 3: ANÁLISE (2 BARRAS) */}
+      {/* FASE 3: ANÁLISE */}
       {faseAtual === 'analisando' && (
         <div className="w-full max-w-md bg-white min-h-screen p-6 flex flex-col justify-center animate-fade-in">
           <div className="space-y-8">
@@ -362,7 +352,7 @@ function App() {
           </div>
 
           <div className="w-full max-w-sm mx-auto bg-transparent rounded-xl overflow-hidden mb-6 relative z-10 aspect-[3/4]">
-            {/* PLAYER VTURB */}
+            {/* PLAYER NOVO */}
             <vturb-smartplayer 
               id="vid-695c2cb510ea8bb29001aba0" 
               style={{ width: '100%', height: '100%', display: 'block' }}
@@ -410,14 +400,14 @@ function App() {
                 </div>
               </div>
 
-              {/* SALES PAGE HÍBRIDA */}
+              {/* SALES PAGE */}
               <div className="w-full bg-slate-900 text-white py-12 px-4 animate-fade-in mt-8">
                 
                 {/* 1. SEÇÃO DA ESPECIALISTA */}
                 <div className="flex flex-col items-center mb-10 text-center">
                    <div className="w-32 h-32 md:w-40 md:h-40 rounded-full border-4 border-amber-400 overflow-hidden shadow-2xl mb-4 relative">
-                     {/* WEBP */}
-                     <img src="/nadiaexpert.webp" alt="Dra. Nádia Giménez" className="w-full h-full object-cover"/>
+                     {/* WEBP + LAZY */}
+                     <img src="/nadiaexpert.webp" loading="lazy" alt="Dra. Nádia Giménez" className="w-full h-full object-cover"/>
                    </div>
                    <h3 className="text-2xl font-bold text-amber-400">Dra. Nádia Giménez</h3>
                    <p className="text-gray-300 text-sm">Neurocientífica & Sexóloga Clínica</p>
@@ -446,17 +436,17 @@ function App() {
                   </ul>
                 </div>
 
-                {/* 3. SEÇÃO PROVA SOCIAL (AGORA COM MOLDURA BRANCA) */}
+                {/* 3. SEÇÃO PROVA SOCIAL (BOX BRANCO + WEBP + LAZY) */}
                 <div className="max-w-2xl mx-auto mb-12">
                   <h3 className="text-2xl font-bold text-center text-white mb-8">
                     Hombres como tú que ya salvaron sus matrimonios:
                   </h3>
                   <div className="grid gap-6 md:grid-cols-2">
-                    {/* Imagem 1 no Box Branco WEBP + LAZY */}
+                    {/* Imagem 1 */}
                     <div className="bg-white p-2 rounded-xl shadow-lg hover:scale-105 transition-transform duration-300">
                       <img src="/prova1.webp" loading="lazy" alt="Testimonio 1" className="w-full rounded-lg border border-gray-100" />
                     </div>
-                    {/* Imagem 2 no Box Branco WEBP + LAZY */}
+                    {/* Imagem 2 */}
                     <div className="bg-white p-2 rounded-xl shadow-lg hover:scale-105 transition-transform duration-300">
                       <img src="/prova2.webp" loading="lazy" alt="Testimonio 2" className="w-full rounded-lg border border-gray-100" />
                     </div>
@@ -480,7 +470,7 @@ function App() {
                    </div>
                 </div>
 
-                {/* 5. SEÇÃO BÔNUS (COM 4 BÔNUS WEBP + LAZY) */}
+                {/* 5. SEÇÃO BÔNUS (4 BÔNUS WEBP + LAZY) */}
                 <div className="max-w-3xl mx-auto mb-12">
                   <h3 className="text-2xl font-bold text-center text-amber-400 mb-8">
                     ¡Solo HOY! Recibe 4 Regalos Exclusivos GRATIS:
@@ -509,7 +499,7 @@ function App() {
                   </div>
                 </div>
 
-                {/* 6. FAQ (VISUAL CARD) */}
+                {/* 6. FAQ */}
                 <div className="max-w-2xl mx-auto mb-12">
                   <h3 className="text-2xl font-bold text-center text-white mb-6">Preguntas Frecuentes</h3>
                   <div className="space-y-4">
@@ -532,7 +522,7 @@ function App() {
                   </div>
                 </div>
 
-                {/* 7. GARANTIA FINAL */}
+                {/* 7. GARANTIA */}
                 <div className="max-w-2xl mx-auto bg-white rounded-2xl p-8 text-center shadow-2xl relative overflow-hidden">
                   <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-amber-300 to-amber-500"></div>
                   <Award size={64} className="text-amber-500 mx-auto mb-4" />
